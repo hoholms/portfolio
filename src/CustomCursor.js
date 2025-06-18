@@ -22,7 +22,7 @@ export class CustomCursor {
     DEFAULT_PADDING: 15,
     DEFAULT_CLICK_SCALE: 0.9,
     DEFAULT_HOVER_CLICK_SCALE: 0.98,
-    FOLLOWER_LAG: 1, // Determines how smoothly the follower tracks the mouse (1 is fastest, 0 – not moving)
+    FOLLOWER_LAG: 1, // Determines how smoothly the follower tracks the mouse (1 is instant, 0 – not moving)
     TRANSITION_LAG: 0.1, // Determines the speed of visual transitions (size, position, radius; 1 is instant, 0 – not moving)
   };
 
@@ -149,10 +149,15 @@ export class CustomCursor {
    * @private
    */
   updateFollower() {
-    this.follower.x +=
-      (this.mouse.x - this.follower.x) * this.config.FOLLOWER_LAG;
-    this.follower.y +=
-      (this.mouse.y - this.follower.y) * this.config.FOLLOWER_LAG;
+    if (this.config.FOLLOWER_LAG === 0) {
+      this.follower.x = this.mouse.x;
+      this.follower.y = this.mouse.y;
+    } else {
+      this.follower.x +=
+        (this.mouse.x - this.follower.x) * this.config.FOLLOWER_LAG;
+      this.follower.y +=
+        (this.mouse.y - this.follower.y) * this.config.FOLLOWER_LAG;
+    }
   }
 
   /**
@@ -253,18 +258,25 @@ export class CustomCursor {
     }
 
     // Apply smooth transitions (lerp)
-    this.cursorState.x +=
-      (targetX - this.cursorState.x) * this.config.TRANSITION_LAG;
-    this.cursorState.y +=
-      (targetY - this.cursorState.y) * this.config.TRANSITION_LAG;
+    const transitionLag =
+      this.config.TRANSITION_LAG === 0 ? 1 : this.config.TRANSITION_LAG;
+    const followerLag =
+      this.config.FOLLOWER_LAG === 0 ? 1 : this.config.FOLLOWER_LAG;
+
+    if (hoveredElement) {
+      this.cursorState.x += (targetX - this.cursorState.x) * transitionLag;
+      this.cursorState.y += (targetY - this.cursorState.y) * transitionLag;
+    } else {
+      this.cursorState.x += (targetX - this.cursorState.x) * followerLag;
+      this.cursorState.y += (targetY - this.cursorState.y) * followerLag;
+    }
     this.cursorState.width +=
-      (targetWidth - this.cursorState.width) * this.config.TRANSITION_LAG;
+      (targetWidth - this.cursorState.width) * transitionLag;
     this.cursorState.height +=
-      (targetHeight - this.cursorState.height) * this.config.TRANSITION_LAG;
+      (targetHeight - this.cursorState.height) * transitionLag;
     // Interpolating border radius directly for a smoother transition.
     this.cursorState.borderRadius +=
-      (targetRadius - this.cursorState.borderRadius) *
-      this.config.TRANSITION_LAG;
+      (targetRadius - this.cursorState.borderRadius) * transitionLag;
 
     // Apply styles to the cursor element
     this.cursor.style.left = `${this.cursorState.x}px`;
