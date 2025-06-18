@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+
+* {
+  cursor: none;
+}
+
+.bg-pattern {
+  background-color: var(--color-slate-100);
+  /*opacity: 0.3;*/
+  background-image:
+    linear-gradient(var(--color-slate-300) 7.2px, transparent 7.2px),
+    linear-gradient(90deg, var(--color-slate-300) 7.2px, transparent 7.2px),
+    linear-gradient(var(--color-slate-300) 3.6px, transparent 3.6px),
+    linear-gradient(
+      90deg,
+      var(--color-slate-300) 3.6px,
+      var(--color-slate-100) 3.6px
+    );
+  background-size:
+    180px 180px,
+    180px 180px,
+    36px 36px,
+    36px 36px;
+  background-position:
+    -7.2px -7.2px,
+    -7.2px -7.2px,
+    -3.6px -3.6px,
+    -3.6px -3.6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bg-pattern {
+    background-color: var(--color-slate-900);
+    /*opacity: 0.3;*/
+    background-image:
+      linear-gradient(var(--color-slate-800) 7.2px, transparent 7.2px),
+      linear-gradient(90deg, var(--color-slate-800) 7.2px, transparent 7.2px),
+      linear-gradient(var(--color-slate-800) 3.6px, transparent 3.6px),
+      linear-gradient(
+        90deg,
+        var(--color-slate-800) 3.6px,
+        var(--color-slate-900) 3.6px
+      );
+    background-size:
+      180px 180px,
+      180px 180px,
+      36px 36px,
+      36px 36px;
+    background-position:
+      -7.2px -7.2px,
+      -7.2px -7.2px,
+      -3.6px -3.6px,
+      -3.6px -3.6px;
+  }
+}
+
+.list-dash {
+  list-style-type: "– ";
+}
+
+/* Custom animation for elements appearing from the left */
+.left-appear {
+  animation-name: left-animate-fade;
+  animation-fill-mode: backwards;
+}
+
+@keyframes left-animate-fade {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Custom animation for the typing effect */
+.typing-animation {
+  /* Set width to the number of characters for the effect */
+  width: 23ch;
+  animation:
+    typing 2s steps(23),
+    blink 0.7s step-end infinite alternate;
+  animation-delay: 0.9s; /* Delay start of typing */
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid;
+  font-size: 1.25rem; /* Increased font size slightly */
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes typing {
+  0% {
+    opacity: 1;
+    width: 0;
+  }
+  100% {
+    opacity: 1;
+    width: 23ch; /* Match the element's ch width */
+  }
+}
+
+/* Blinking cursor effect for the typing animation */
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
