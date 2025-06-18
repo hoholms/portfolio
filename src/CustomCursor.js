@@ -22,8 +22,13 @@ export class CustomCursor {
     DEFAULT_PADDING: 15,
     DEFAULT_CLICK_SCALE: 0.9,
     DEFAULT_HOVER_CLICK_SCALE: 0.98,
-    FOLLOWER_LAG: 0.5, // 0 to 1; closer to 0 is smoother/slower.
-    TRANSITION_LAG: 0.15, // 0 to 1; closer to 0 is smoother/slower.
+    /**
+     * Base speed for animations. Higher values result in faster animations.
+     * These values are used to derive frame-rate independent lag values.
+     */
+    FOLLOWER_SPEED: 138, // Corresponds to a lag of ~0.9 at 60fps
+    TRANSITION_SPEED: 31, // Corresponds to a lag of ~0.4 at 60fps
+    LEAVING_THRESHOLD: 0.5, // Px threshold to consider cursor 'left'
   };
 
   /**
@@ -80,7 +85,8 @@ export class CustomCursor {
     this.previousHovered = null;
     this.previousHoveredZIndex = "";
     this.isLeaving = false;
-    this.currentLag = this.config.FOLLOWER_LAG;
+    this.currentLag = 0;
+    this.lastFrameTime = 0;
 
     this._addEventListeners();
     this._startLoop();
@@ -101,6 +107,7 @@ export class CustomCursor {
    * @private
    */
   _startLoop() {
+    this.lastFrameTime = performance.now();
     requestAnimationFrame(() => this._loop());
   }
 
@@ -110,12 +117,22 @@ export class CustomCursor {
    * @private
    */
   _loop() {
+    const now = performance.now();
+    const deltaTime = (now - this.lastFrameTime) / 1000;
+    this.lastFrameTime = now;
+
+    // Calculate frame-independent lag values.
+    // The formula used is: lag = 1 - exp(-speed * dt)
+    const followerLag = 1 - Math.exp(-this.config.FOLLOWER_SPEED * deltaTime);
+    const transitionLag =
+      1 - Math.exp(-this.config.TRANSITION_SPEED * deltaTime);
+
     const hoveredElement = this._findHoveredElement();
 
-    this._updateFollower();
+    this._updateFollower(followerLag);
     this._manageHoverState(hoveredElement);
     this._applyParallaxEffect(hoveredElement);
-    this._updateCursorStyle(hoveredElement);
+    this._updateCursorStyle(hoveredElement, followerLag, transitionLag);
 
     requestAnimationFrame(() => this._loop());
   }
@@ -142,19 +159,12 @@ export class CustomCursor {
 
   /**
    * Smoothly moves the follower element towards the mouse position based on the follower lag.
+   * @param {number} followerLag - The calculated lag for the current frame.
    * @private
    */
-  _updateFollower() {
-    // This calculation is preserved from your original code.
-    if (this.config.FOLLOWER_LAG === 0) {
-      this.follower.x = this.mouse.x;
-      this.follower.y = this.mouse.y;
-    } else {
-      this.follower.x +=
-        (this.mouse.x - this.follower.x) * this.config.FOLLOWER_LAG;
-      this.follower.y +=
-        (this.mouse.y - this.follower.y) * this.config.FOLLOWER_LAG;
-    }
+  _updateFollower(followerLag) {
+    this.follower.x += (this.mouse.x - this.follower.x) * followerLag;
+    this.follower.y += (this.mouse.y - this.follower.y) * followerLag;
   }
 
   /**
@@ -243,9 +253,11 @@ export class CustomCursor {
   /**
    * Updates the cursor's style properties (position, size, radius) based on the hover state.
    * @param {HTMLElement|undefined} hoveredElement - The currently hovered element.
+   * @param {number} followerLag - The calculated follower lag for the current frame.
+   * @param {number} transitionLag - The calculated transition lag for the current frame.
    * @private
    */
-  _updateCursorStyle(hoveredElement) {
+  _updateCursorStyle(hoveredElement, followerLag, transitionLag) {
     const { targetX, targetY, targetWidth, targetHeight, targetRadius } =
       this._getTargetProperties(hoveredElement);
 
@@ -253,9 +265,9 @@ export class CustomCursor {
     if (this.isLeaving) {
       if (
         Math.abs(targetWidth - this.cursorState.width) <
-          this.config.FOLLOWER_LAG &&
+          this.config.LEAVING_THRESHOLD &&
         Math.abs(targetHeight - this.cursorState.height) <
-          this.config.FOLLOWER_LAG
+          this.config.LEAVING_THRESHOLD
       ) {
         this.isLeaving = false;
       }
@@ -263,10 +275,6 @@ export class CustomCursor {
 
     // --- All calculations below are preserved from your original code ---
 
-    const transitionLag =
-      this.config.TRANSITION_LAG === 0 ? 1 : this.config.TRANSITION_LAG;
-    const followerLag =
-      this.config.FOLLOWER_LAG === 0 ? 1 : this.config.FOLLOWER_LAG;
     const targetLag =
       hoveredElement || this.isLeaving ? transitionLag : followerLag;
 

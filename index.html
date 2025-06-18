@@ -20,16 +20,16 @@
     <title>Portfolio</title>
   </head>
   <body
-    class="bg-pattern flex h-full w-full items-center justify-around text-slate-900 dark:text-slate-100"
+    class="bg-pattern flex h-full w-full items-center justify-around text-slate-900 dark:text-slate-100 [&>div]:w-[10%]"
   >
     <!-- Non-hoverable element for comparison -->
-    <div class="w-48 rounded-lg bg-slate-400 p-5 text-center dark:bg-slate-600">
+    <div class="rounded-lg bg-slate-400 p-5 text-center dark:bg-slate-600">
       Not Hoverable :(
     </div>
 
     <!-- Simple hoverable element -->
     <div
-      class="w-48 rounded-sm bg-orange-400 p-5 text-center dark:bg-orange-600"
+      class="rounded-sm bg-orange-400 p-5 text-center dark:bg-orange-600"
       hoverable
     >
       Default
@@ -37,7 +37,7 @@
 
     <!-- Hoverable with custom padding -->
     <div
-      class="w-48 rounded-xl bg-purple-400 p-5 text-center dark:bg-purple-600"
+      class="rounded-xl bg-purple-400 p-5 text-center dark:bg-purple-600"
       hoverable
       data-cursor-padding="25"
       data-cursor-tint
@@ -47,7 +47,7 @@
 
     <!-- Hoverable with custom click scale -->
     <div
-      class="w-48 rounded-2xl bg-teal-400 p-5 text-center dark:bg-teal-600"
+      class="rounded-2xl bg-teal-400 p-5 text-center dark:bg-teal-600"
       hoverable
       data-cursor-scale="1.1"
     >
@@ -56,7 +56,7 @@
 
     <!-- Hoverable with parallax effect -->
     <div
-      class="w-40 rounded-3xl bg-rose-400 p-5 text-center dark:bg-rose-600"
+      class="rounded-3xl bg-rose-400 p-5 text-center dark:bg-rose-600"
       hoverable
       data-cursor-parallax="10"
     >
@@ -65,7 +65,7 @@
 
     <!-- Fully customized hoverable element -->
     <div
-      class="w-48 rounded-full border-2 border-indigo-600 p-5 text-center backdrop-blur-xs dark:border-indigo-400"
+      class="rounded-full border-2 border-indigo-600 p-5 text-center backdrop-blur-xs dark:border-indigo-400"
       hoverable
       data-cursor-padding="30"
       data-cursor-parallax="15"
@@ -75,10 +75,10 @@
     </div>
 
     <!-- The custom cursor element -->
-    <div
+    <span
       id="cursor"
       class="pointer-events-none invisible fixed top-0 left-0 z-[9999] h-7 w-7 rounded-full border-2 border-slate-600/15 bg-slate-500/15 backdrop-blur-xs transition-transform dark:border-slate-100/15 dark:bg-slate-200/15"
-    ></div>
+    ></span>
 
     <script type="module" src="/src/main.js"></script>
   </body>
